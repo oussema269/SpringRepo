@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Service pour l'application Spring Boot
+  app:
+    image: oussemamj/tp-foyer:latest
+    container_name: tpfoyer_app
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8089
+      - SERVER_SERVLET_CONTEXT_PATH=/tpfoyer
+    ports:
+      - "8089:8089"
+    depends_on:
+      - db
+    networks:
+      - tpfoyer_network
+
+  # Service pour la base de données MySQL
+  db:
+    image: mysql:8.0
+    container_name: tpfoyer_db
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - tpfoyer_network
+
+  # Service pour l'application Angular
+  frontend:
+    image: oussemamj/tp-foyer-frontend
+    container_name: tpfoyer_frontend
+    ports:
+      - "80:80"
+    networks:
+      - tpfoyer_network
+
+# Déclaration du réseau
+networks:
+  tpfoyer_network:
+
+# Volume pour persister les données de MySQL
+volumes:
+  mysql_data:
